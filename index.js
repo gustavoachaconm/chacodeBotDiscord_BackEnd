@@ -1,24 +1,42 @@
-require("dotenv").config();
-const mongoose = require("mongoose");
+
+//IMPORTS
 const { Client, GatewayIntentBits } = require("discord.js");
-
-const { DISCORD_TOKEN, MONGODB_URI } = process.env;
-
+const { DISCORD_TOKEN } = process.env;
 const loadCommands = require("./selectors/commandsSelector");
-const loadEvents = require("./selectors/eventsSelector");
+const loadEvents = require("./selectors/eventsSelector"); 
+const express = require("express");
+const cors = require("cors");
+const authRoutes = require('./services/auth')
 
-mongoose
-  .connect(MONGODB_URI)
-  .then(() => {
-    console.log("Conectado a MongoDB");
-    const client = new Client({
-      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
-    });
-    loadCommands(client);
-    loadEvents(client);
-    client.login(DISCORD_TOKEN);
-  })
-  .catch((err) => {
-    console.error("Error de conexión a MongoDB:", err);
-    process.exit(1);
-  });
+require("dotenv").config();
+
+// DB CONNECTION
+const ConnectDB = require("./database/db");
+const morgan = require("morgan");
+ConnectDB()
+const port = process.env.PORT || 9000
+
+
+// DISCORD BOT
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+loadCommands(client);
+loadEvents(client);
+client.login(DISCORD_TOKEN);
+
+
+//MIDDLEWARE EXPRESS
+
+const app = express();
+
+
+app.use(cors());
+app.use(morgan("dev"));
+app.use(express.json());
+
+
+app.use('/v1/api/auth',authRoutes)
+
+
+app.listen(port,()=>{
+  console.log(`Rest Api works on port ${port}`)
+})
