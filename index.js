@@ -6,9 +6,13 @@ const loadCommands = require("./selectors/commandsSelector");
 const loadEvents = require("./selectors/eventsSelector"); 
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+require("dotenv").config();
+
+
+//ROUTES
 const authRoutes = require('./services/auth')
 
-require("dotenv").config();
 
 // DB CONNECTION
 const ConnectDB = require("./database/db");
@@ -32,6 +36,7 @@ const app = express();
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(cookieParser())
 
 
 app.use('/v1/api/auth',authRoutes)
