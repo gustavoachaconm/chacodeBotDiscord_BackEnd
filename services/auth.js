@@ -3,13 +3,15 @@ const request = require('../axios/module');
 const router = Routes();
 
 
-router.get('/', async (req, res) => {
-    res.send("Hola")
+let AuthToken =null;
+
+router.get('/get-token', async (req, res) => {
+res.json({token: AuthToken})
 })
 
-router.get('/user/info', async (req, res) => {
+router.post('/user/info', async (req, res) => {
 
-    const accessToken = req.cookies.access_token;
+    const accessToken = req.body.token;   
 
     if(accessToken){
         const user = await request.getUser(accessToken);
@@ -34,8 +36,8 @@ router.get('/callback', async (req, res) => {
 
     const code = req.query['code'];
     const token = await request.getCredentials(code);
-    res.cookie("access_token",token);
-    res.redirect(`https://qnrz9x09-9000.use2.devtunnels.ms/v1/api/auth/`)    
+    AuthToken = token;
+    res.redirect(`https://qnrz9x09-5173.use2.devtunnels.ms/dashboard`)
 
 })
 
